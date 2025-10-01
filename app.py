@@ -14,12 +14,21 @@ st.markdown("""
 <style>
     /* Global Styles */
     .main-header {
-        font-size: 3rem;
+        font-size: 2.5rem;
         font-weight: 700;
         color: #4285F4;
         text-align: center;
         margin-bottom: 2rem;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        padding: 0 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .main-header {
+            font-size: 2rem;
+            text-align: center;
+            padding: 0 0.5rem;
+        }
     }
     
     .sub-header {
@@ -27,6 +36,14 @@ st.markdown("""
         font-weight: 600;
         color: #34A853;
         margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .sub-header {
+            font-size: 1.3rem;
+            text-align: center;
+        }
     }
     
     /* Card Styles */
@@ -58,6 +75,24 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
+    .advice-card {
+        background: linear-gradient(135deg, #4285F4, #5B8DEF);
+        padding: 1.5rem;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .rehydration-card {
+        background: linear-gradient(135deg, #F4B400, #F7C843);
+        padding: 1.5rem;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
     /* Button Styles */
     .stButton>button {
         background: linear-gradient(135deg, #4285F4, #34A853);
@@ -73,6 +108,7 @@ st.markdown("""
         border-radius: 25px;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 100%;
     }
     
     .stButton>button:hover {
@@ -92,6 +128,28 @@ st.markdown("""
         padding: 2rem;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .main-container {
+            padding: 1rem;
+            margin: 0.5rem;
+        }
+    }
+    
+    /* Mobile responsive columns */
+    @media (max-width: 768px) {
+        .mobile-stack {
+            flex-direction: column;
+        }
+    }
+    
+    /* Center align for mobile */
+    @media (max-width: 768px) {
+        .center-mobile {
+            text-align: center;
+            justify-content: center;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -148,8 +206,8 @@ def calculate_risk_level(food, processing_method, symptoms):
     # Skor gejala
     symptom_score = sum(FOOD_SAFETY_KNOWLEDGE["symptoms_severity"][symptom]["weight"] for symptom in symptoms)
     
-    # Total skor
-    total_score = food_risk_score * processing_multiplier + symptom_score
+    # Total skor dengan batas maksimal 10
+    total_score = min(food_risk_score * processing_multiplier + symptom_score, 10)
     
     # Menentukan tingkat risiko
     if total_score >= 8:
@@ -165,88 +223,116 @@ def get_possible_contaminants(food, processing_method):
     
     # Tambahan kontaminan berdasarkan cara pengolahan
     if processing_method == "Mentah":
-        base_contaminants.extend(["Parasit berbagai jenis", "Virus Hepatitis A"])
+        base_contaminants.extend(["Parasit berbagai jenis"])
     elif processing_method == "Dibakar":
         if food in ["Ayam", "Daging sapi"]:
             base_contaminants.append("Hidrokarbon aromatik polisiklik (PAH)")
     
-    return list(set(base_contaminants))  # Remove duplicates
+    # Filter: Hapus Hepatitis A dari daftar
+    filtered_contaminants = [cont for cont in base_contaminants if "Hepatitis" not in cont]
+    
+    return list(set(filtered_contaminants))  # Remove duplicates
 
-def get_first_aid_advice(risk_level, symptoms, contaminants):
-    """Memberikan saran pertolongan pertama berdasarkan WHO & Kemenkes 2025"""
-    
+def get_main_advice(symptoms, risk_level):
+    """Memberikan saran utama berdasarkan gejala spesifik"""
     advice = []
-    
-    # Rehidrasi (selalu disarankan)
-    advice.append("🏥 **REHIDRASI**:")
-    advice.append("• Minum oralit atau cairan elektrolit secara bertahap")
-    advice.append("• Larutan gula-garam (1 sendok teh garam + 8 sendok teh gula dalam 1 liter air)")
-    advice.append("• Cairan bening seperti air kelapa, kuah kaldu, atau teh encer")
-    
-    # Saran berdasarkan tingkat risiko
-    if risk_level == "Tinggi":
-        advice.append("🚨 **TINDAKAN SEGERA**:")
-        advice.append("• Segera ke fasilitas kesehatan terdekat")
-        advice.append("• Jangan mencoba memuntahkan makanan secara paksa")
-        advice.append("• Bawa sampel makanan yang diduga menyebabkan keracunan")
-        
-    elif risk_level == "Sedang":
-        advice.append("⚠️ **PENANGANAN LANJUTAN**:")
-        advice.append("• Pantau gejala setiap 2-3 jam")
-        advice.append("• Jika gejala memburuk dalam 6 jam, segera ke dokter")
-        advice.append("• Istirahat total dan hindari aktivitas berat")
     
     # Saran berdasarkan gejala spesifik
     if "Muntah" in symptoms or "Diare" in symptoms:
-        advice.append("💧 **PENANGANAN MUNTAH/DIARE**:")
+        advice.append("**Penanganan Muntah/Diare:**")
         advice.append("• Minum cairan sedikit demi sedikit tetapi sering")
         advice.append("• Hindari makanan padat selama 4-6 jam pertama")
         advice.append("• Setelah mereda, konsumsi makanan lunak (bubur, pisang, apel)")
+        advice.append("• Hindari makanan berlemak, pedas, dan susu sementara waktu")
     
     if "Demam" in symptoms:
-        advice.append("🌡️ **PENANGANAN DEMAM**:")
+        advice.append("**Penanganan Demam:**")
         advice.append("• Kompres dengan air hangat di dahi dan ketiak")
         advice.append("• Gunakan pakaian tipis dan nyaman")
         advice.append("• Minum air cukup untuk mencegah dehidrasi")
+        advice.append("• Pantau suhu tubuh setiap 4 jam")
     
-    if "Kejang" in symptoms or "Keringat dingin" in symptoms:
-        advice.append("🚑 **DARURAT MEDIS**:")
+    if "Kejang" in symptoms:
+        advice.append("**DARURAT MEDIS - Kejang:**")
         advice.append("• SEGERA Bawa ke UGD rumah sakit")
         advice.append("• Jangan berikan apapun melalui mulut selama kejang")
         advice.append("• Longgarkan pakaian dan pastikan jalan napas terbuka")
+        advice.append("• Jangan menahan gerakan kejang")
     
-    # Saran berdasarkan jenis kontaminan
-    if "Clostridium botulinum" in contaminants:
-        advice.append("🔬 **KHUSUS BOTULISME**:")
-        advice.append("• Diperlukan antitoksin botulisme")
-        advice.append("• Rawat inap dengan monitoring pernapasan")
-        advice.append("• Hindari obat penenang atau relaksan otot")
+    if "Keringat dingin" in symptoms:
+        advice.append("**DARURAT MEDIS - Keringat Dingin:**")
+        advice.append("• Segera cari pertolongan medis")
+        advice.append("• Berbaring dengan posisi kaki lebih tinggi dari kepala")
+        advice.append("• Jangan berikan makanan atau minuman")
+        advice.append("• Pantau kesadaran terus menerus")
     
-    if "Salmonella" in contaminants or "E. coli" in contaminants:
-        advice.append("🦠 **INFEKSI BAKTERI**:")
-        advice.append("• Antibiotik mungkin diperlukan (hanya dengan resep dokter)")
-        advice.append("• Hindari obat antidiare yang memperlambat usus")
-        advice.append("• Probiotik dapat membantu pemulihan flora usus")
+    # Saran berdasarkan tingkat risiko
+    if risk_level == "Tinggi":
+        advice.append("**Tindakan Segera (Risiko Tinggi):**")
+        advice.append("• Segera ke fasilitas kesehatan terdekat")
+        advice.append("• Jangan mencoba memuntahkan makanan secara paksa")
+        advice.append("• Bawa sampel makanan yang diduga menyebabkan keracunan")
+        advice.append("• Hindari mengemudi sendiri ke rumah sakit")
     
-    # Saran umum dari WHO & Kemenkes 2025
-    advice.append("📋 **PANDUAN UMUM WHO & KEMENKES 2025**:")
+    elif risk_level == "Sedang":
+        advice.append("**Pemantauan Ketat (Risiko Sedang):**")
+        advice.append("• Pantau gejala setiap 2-3 jam")
+        advice.append("• Jika gejala memburuk dalam 6 jam, segera ke dokter")
+        advice.append("• Istirahat total dan hindari aktivitas berat")
+        advice.append("• Catat perkembangan gejala")
+    
+    return advice
+
+def get_rehydration_advice():
+    """Memberikan saran rehidrasi standar"""
+    advice = []
+    advice.append("**Langkah Rehidrasi Wajib:**")
+    advice.append("• Minum oralit atau cairan elektrolit secara bertahap")
+    advice.append("• Larutan gula-garam (1 sendok teh garam + 8 sendok teh gula dalam 1 liter air)")
+    advice.append("• Cairan bening seperti air kelapa, kuah kaldu, atau teh encer")
+    advice.append("• Minum 200-300 ml setiap kali muntah atau diare")
+    advice.append("• Hindari minuman berkafein, soda, dan alkohol")
+    
+    return advice
+
+def get_additional_advice(contaminants):
+    """Memberikan saran tambahan berdasarkan pedoman WHO/Kemenkes"""
+    advice = []
+    
+    advice.append("**Pedoman Umum WHO & Kemenkes 2025:**")
     advice.append("• Jangan menggunakan antibiotik tanpa resep dokter")
     advice.append("• Hindari obat anti-muntah kecuali diresepkan dokter")
     advice.append("• Cuci tangan dengan sabun sebelum makan dan setelah BAB")
     advice.append("• Pisahkan makanan mentah dan matang selama penyimpanan")
     advice.append("• Masak makanan sampai suhu internal minimal 70°C")
+    advice.append("• Simpan makanan pada suhu yang tepat (<5°C atau >60°C)")
+    
+    # Saran berdasarkan jenis kontaminan spesifik
+    if "Clostridium botulinum" in contaminants:
+        advice.append("**Khusus Botulisme:**")
+        advice.append("• Diperlukan antitoksin botulisme di rumah sakit")
+        advice.append("• Rawat inap dengan monitoring pernapasan ketat")
+    
+    if "Salmonella" in contaminants or "E. coli" in contaminants:
+        advice.append("**Khusus Infeksi Bakteri:**")
+        advice.append("• Antibiotik mungkin diperlukan (hanya dengan resep dokter)")
+        advice.append("• Probiotik dapat membantu pemulihan flora usus")
     
     return advice
 
 def main():
-    # Header utama
-    st.markdown('<h1 class="main-header">🍽️ WaregPal: Pertolongan Pertama Keracunan Makanan</h1>', unsafe_allow_html=True)
+    # Header utama dengan div wrapper untuk mobile
+    st.markdown("""
+    <div class="center-mobile">
+        <h1 class="main-header">🍽️ WaregPal: Pertolongan Pertama Keracunan Makanan</h1>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Container utama
     with st.container():
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
         
-        # Input section
+        # Input section dengan responsive columns
         col1, col2 = st.columns(2)
         
         with col1:
@@ -283,20 +369,24 @@ def main():
                 # Dapatkan kemungkinan kontaminan
                 contaminants = get_possible_contaminants(selected_food, selected_processing)
                 
-                # Dapatkan saran pertolongan pertama
-                first_aid_advice = get_first_aid_advice(risk_level, selected_symptoms, contaminants)
+                # Dapatkan saran-saran terpisah
+                main_advice = get_main_advice(selected_symptoms, risk_level)
+                rehydration_advice = get_rehydration_advice()
+                additional_advice = get_additional_advice(contaminants)
                 
                 # Tampilkan hasil dalam card-card yang menarik
                 st.markdown("---")
-                st.markdown('<div class="sub-header">📊 Hasil Analisis</div>', unsafe_allow_html=True)
+                st.markdown('<div class="sub-header center-mobile">📊 Hasil Analisis</div>', unsafe_allow_html=True)
                 
                 # Card untuk tingkat risiko
                 risk_color = "#FF6B6B" if risk_level == "Tinggi" else "#F4D03F" if risk_level == "Sedang" else "#58D68D"
                 st.markdown(f"""
-                <div style="background: {risk_color}; padding: 1.5rem; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); color: white; margin-bottom: 1rem;">
-                    <h3 style="margin:0; color: white;">🩺 Tingkat Risiko Keracunan</h3>
-                    <h2 style="margin:0; font-size: 2.5rem; color: white;">{risk_level}</h2>
-                    <p style="margin:0; opacity: 0.9;">Skor Risiko: {risk_score}/10</p>
+                <div class="center-mobile">
+                    <div style="background: {risk_color}; padding: 1.5rem; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); color: white; margin-bottom: 1rem;">
+                        <h3 style="margin:0; color: white; text-align: center;">🩺 Tingkat Risiko Keracunan</h3>
+                        <h2 style="margin:0; font-size: 2.5rem; color: white; text-align: center;">{risk_level}</h2>
+                        <p style="margin:0; opacity: 0.9; text-align: center;">Skor Risiko: {risk_score}/10</p>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -308,11 +398,38 @@ def main():
                         st.write(f"{i}. {contaminant}")
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Card untuk pertolongan pertama
-                with st.expander("🚑 Panduan Pertolongan Pertama (WHO & Kemenkes 2025)", expanded=True):
+                # Card untuk SARAN UTAMA
+                with st.expander("💡 Saran Utama (Berdasarkan Gejala)", expanded=True):
+                    st.markdown('<div class="advice-card">', unsafe_allow_html=True)
+                    if main_advice:
+                        for advice_line in main_advice:
+                            if advice_line.startswith("**"):
+                                st.markdown(f"**{advice_line}**")
+                            else:
+                                st.write(advice_line)
+                    else:
+                        st.write("• Istirahat yang cukup")
+                        st.write("• Pantau perkembangan gejala")
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Card untuk REHIDRASI
+                with st.expander("💧 Rehidrasi", expanded=True):
+                    st.markdown('<div class="rehydration-card">', unsafe_allow_html=True)
+                    for advice_line in rehydration_advice:
+                        if advice_line.startswith("**"):
+                            st.markdown(f"**{advice_line}**")
+                        else:
+                            st.write(advice_line)
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Card untuk SARAN TAMBAHAN
+                with st.expander("📋 Saran Tambahan (Pedoman WHO/Kemenkes)", expanded=True):
                     st.markdown('<div class="firstaid-card">', unsafe_allow_html=True)
-                    for advice_line in first_aid_advice:
-                        st.write(advice_line)
+                    for advice_line in additional_advice:
+                        if advice_line.startswith("**"):
+                            st.markdown(f"**{advice_line}**")
+                        else:
+                            st.write(advice_line)
                     st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Informasi tambahan
