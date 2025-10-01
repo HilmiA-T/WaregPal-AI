@@ -49,12 +49,58 @@ st.markdown("""
     /* Card Styles */
     .risk-card {
         background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 20px;
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         color: white;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
         border: none;
+        text-align: center;
+    }
+    
+    .risk-card-medium {
+        background: linear-gradient(135deg, #F4D03F, #F7DC6F);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        color: white;
+        margin-bottom: 2rem;
+        border: none;
+        text-align: center;
+    }
+    
+    .risk-card-low {
+        background: linear-gradient(135deg, #58D68D, #82E5AA);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        color: white;
+        margin-bottom: 2rem;
+        border: none;
+        text-align: center;
+    }
+    
+    .risk-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: white;
+    }
+    
+    .risk-level {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .risk-score {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        color: white;
+        opacity: 0.9;
     }
     
     .contamination-card {
@@ -149,6 +195,15 @@ st.markdown("""
         .center-mobile {
             text-align: center;
             justify-content: center;
+        }
+        
+        .risk-level {
+            font-size: 2.5rem;
+        }
+        
+        .risk-card, .risk-card-medium, .risk-card-low {
+            padding: 1.5rem;
+            margin: 1rem 0;
         }
     }
 </style>
@@ -378,15 +433,19 @@ def main():
                 st.markdown("---")
                 st.markdown('<div class="sub-header center-mobile">📊 Hasil Analisis</div>', unsafe_allow_html=True)
                 
-                # Card untuk tingkat risiko
-                risk_color = "#FF6B6B" if risk_level == "Tinggi" else "#F4D03F" if risk_level == "Sedang" else "#58D68D"
+                # Card untuk tingkat risiko dengan styling yang lebih baik
+                if risk_level == "Tinggi":
+                    risk_class = "risk-card"
+                elif risk_level == "Sedang":
+                    risk_class = "risk-card-medium"
+                else:
+                    risk_class = "risk-card-low"
+                
                 st.markdown(f"""
-                <div class="center-mobile">
-                    <div style="background: {risk_color}; padding: 1.5rem; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); color: white; margin-bottom: 1rem;">
-                        <h3 style="margin:0; color: white; text-align: center;">🩺 Tingkat Risiko Keracunan</h3>
-                        <h2 style="margin:0; font-size: 2.5rem; color: white; text-align: center;">{risk_level}</h2>
-                        <p style="margin:0; opacity: 0.9; text-align: center;">Skor Risiko: {risk_score}/10</p>
-                    </div>
+                <div class="{risk_class}">
+                    <div class="risk-title">🩺 Tingkat Risiko Keracunan</div>
+                    <div class="risk-level">{risk_level}</div>
+                    <div class="risk-score">Skor Risiko: {risk_score}/10</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
