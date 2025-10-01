@@ -10,4 +10,3 @@ Aplikasi Streamlit untuk analisis dan pertolongan pertama keracunan makanan berd
 ## Teknologi
 - Python
 - Streamlit
-- Pandas
