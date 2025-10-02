@@ -406,9 +406,9 @@ def main():
         with col2:
             st.markdown('<div class="sub-header">🤒 Gejala yang Dialami</div>', unsafe_allow_html=True)
             
-            # Pilihan gejala (multiple select)
+            # Pilihan gejala (multiple select) - PERBAIKAN: "Keringat dingin" diubah menjadi "Pingsan"
             symptom_options = ["Mual", "Muntah", "Diare", "Sakit perut", "Pusing", 
-                             "Demam", "Lemas", "Keringat dingin", "Kejang"]
+                             "Demam", "Lemas", "Pingsan", "Kejang"]
             selected_symptoms = st.multiselect("Pilih gejala yang dialami:", symptom_options)
             
             # Tombol analisis
