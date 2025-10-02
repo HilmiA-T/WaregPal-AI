@@ -235,7 +235,7 @@ FOOD_SAFETY_KNOWLEDGE = {
         "Dikukus": {"risk": "rendah", "multiplier": 0.4}
     },
     
-    # Gejala dan tingkat keparahan
+    # Gejala dan tingkat keparahan - PERBAIKAN: "Keringat dingin" diubah menjadi "Pingsan"
     "symptoms_severity": {
         "Mual": {"severity": "ringan", "weight": 1},
         "Muntah": {"severity": "sedang", "weight": 2},
@@ -244,7 +244,7 @@ FOOD_SAFETY_KNOWLEDGE = {
         "Pusing": {"severity": "ringan", "weight": 1},
         "Demam": {"severity": "sedang", "weight": 2},
         "Lemas": {"severity": "sedang", "weight": 2},
-        "Keringat dingin": {"severity": "berat", "weight": 3},
+        "Pingsan": {"severity": "berat", "weight": 3},
         "Kejang": {"severity": "berat", "weight": 4}
     }
 }
@@ -314,7 +314,7 @@ def get_main_advice(symptoms, risk_level):
         advice.append("• Longgarkan pakaian dan pastikan jalan napas terbuka")
         advice.append("• Jangan menahan gerakan kejang")
     
-    if "Keringat dingin" in symptoms:
+    if "Pingsan" in symptoms:
         advice.append("**DARURAT MEDIS - Syok akibat Keracunan Makanan:**")
         advice.append("• Segera cari pertolongan medis darurat")
         advice.append("• Berbaring dengan posisi kaki lebih tinggi dari kepala")
