@@ -315,11 +315,12 @@ def get_main_advice(symptoms, risk_level):
         advice.append("• Jangan menahan gerakan kejang")
     
     if "Keringat dingin" in symptoms:
-        advice.append("**DARURAT MEDIS - Keringat Dingin:**")
-        advice.append("• Segera cari pertolongan medis")
+        advice.append("**DARURAT MEDIS - Syok akibat Keracunan Makanan:**")
+        advice.append("• Segera cari pertolongan medis darurat")
         advice.append("• Berbaring dengan posisi kaki lebih tinggi dari kepala")
         advice.append("• Jangan berikan makanan atau minuman")
-        advice.append("• Pantau kesadaran terus menerus")
+        advice.append("• Pantau kesadaran dan pernapasan terus menerus")
+        advice.append("• Tutupi dengan selimut untuk menjaga suhu tubuh")
     
     # Saran berdasarkan tingkat risiko
     if risk_level == "Tinggi":
